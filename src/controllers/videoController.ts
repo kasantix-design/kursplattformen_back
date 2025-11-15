@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
 import Video from "../models/Video";
 
-// Last opp referanse til video (Jitsi/Jibri-opptak lenke)
+// (Valgfri) Kan fjernes hvis du ikke skal bruke den:
 export const hentMinSide = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ message: "Ikke autentisert" });
   }
+
+  res.status(200).json({ brukerId: req.user.id, rolle: req.user.rolle });
+};
+
+// Last opp referanse til video (Jitsi/Jibri-opptak lenke)
 export const lastOppVideo = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ message: "Ikke autorisert" });
