@@ -12,6 +12,10 @@ export const hentAlleInnlegg = async (req: Request, res: Response) => {
 };
 
 // Opprett nytt innlegg
+export const hentMinSide = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Ikke autentisert" });
+  }
 export const opprettInnlegg = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ message: "Ikke autentisert bruker" });
