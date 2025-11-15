@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import Video from "../models/Video";
 
 // Last opp referanse til video (Jitsi/Jibri-opptak lenke)
+export const hentMinSide = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Ikke autentisert" });
+  }
 export const lastOppVideo = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ message: "Ikke autorisert" });
