@@ -44,4 +44,4 @@ export const hentMineVideoer = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).json({ message: "Feil ved henting av videoer" });
   }
-};
+}
