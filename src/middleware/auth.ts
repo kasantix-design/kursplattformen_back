@@ -20,7 +20,7 @@ export const beskytte = async (req: Request, res: Response, next: NextFunction) 
     const bruker = await Bruker.findById(decoded.id).select("-passord")
     if (!bruker) return res.status(401).json({ msg: "Ugyldig bruker" })
 
-    req.user = { id: bruker._id, rolle: bruker.rolle }
+    req.user = { id: bruker._id.tostring, rolle: bruker.rolle }
     next()
   } catch (err) {
     res.status(401).json({ msg: "Ugyldig token" })
