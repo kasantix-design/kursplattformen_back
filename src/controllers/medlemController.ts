@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import Medlem from "../models/Medlem";
 
 // Hent info om innlogget medlem
+export const hentMinSide = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Ikke autentisert" });
+  }
 export const hentMinProfil = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ message: "Ikke autentisert" });
