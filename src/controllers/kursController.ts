@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import Kurs from "../models/Kurs";
 
 // Hent alle kurs (offentlig)
+export const hentMinSide = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Ikke autentisert" });
+  }
 export const hentAlleKurs = async (req: Request, res: Response) => {
   try {
     const kurs = await Kurs.find();
