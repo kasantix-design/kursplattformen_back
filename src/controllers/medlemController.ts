@@ -52,4 +52,5 @@ export const slettKonto = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).json({ message: "Feil ved sletting av konto" });
   }
+  };
 }
