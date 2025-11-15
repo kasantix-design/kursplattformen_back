@@ -19,4 +19,5 @@ export const sendAdminEpost = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).json({ message: "Feil ved sending av e-post" });
   }
-}
+'}'
+ } 
