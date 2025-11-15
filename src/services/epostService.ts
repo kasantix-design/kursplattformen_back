@@ -2,17 +2,17 @@ import nodemailer from "nodemailer"
 import { env } from "../config/env"
 
 const transporter = nodemailer.createTransport({
-  service: "Outlook365",
+  service: "gmail",
   auth: {
-    user: env.OUTLOOK_EMAIL,
-    pass: env.OUTLOOK_PASS,
+    user: env.GMAIL_USER,
+    pass: env.GMAIL_PASS,
   },
 })
 
 export async function sendEpost({ navn, epost, melding }: { navn: string, epost: string, melding: string }) {
   return transporter.sendMail({
-    from: epost,
-    to: env.OUTLOOK_EMAIL,
+    from: `"${navn}" <${epost}>`,
+    to: env.GMAIL_USER,
     subject: `Kontakt fra ${navn}`,
     text: melding,
   })
