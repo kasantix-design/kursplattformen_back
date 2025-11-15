@@ -4,7 +4,10 @@ import bcrypt from "bcryptjs";
 import Bruker from "../models/Bruker";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
-
+export const hentMinSide = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Ikke autentisert" });
+  }
 // Opprett JWT
 const genererToken = (id: string, rolle: string) => {
   return jwt.sign({ id, rolle }, JWT_SECRET, { expiresIn: "7d" });
