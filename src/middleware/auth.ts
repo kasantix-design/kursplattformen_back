@@ -8,7 +8,7 @@ interface JwtPayload {
   rolle?: string
 }
 
-// Sjekker om rolle er gyldig
+// Sikker sjekk på rolle-verdien før vi bruker den
 const erGyldigRolle = (rolle: any): rolle is 'admin' | 'medlem' => {
   return rolle === 'admin' || rolle === 'medlem'
 }
@@ -25,18 +25,19 @@ export const autentiser = (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload
 
-    if (!erGyldigRolle(decoded.rolle)) {
-      return res.status(403).json({ message: 'Ugyldig rolle i token' })
+    // Type-narrowing her
+    if (!decoded.id || !erGyldigRolle(decoded.rolle)) {
+      return res.status(403).json({ message: 'Ugyldig token-rolle eller ID' })
     }
 
     req.user = {
       id: decoded.id,
       email: decoded.email,
-      rolle: decoded.rolle // nå trygt
+      rolle: decoded.rolle // nå godkjent som 'admin' | 'medlem'
     }
 
     next()
-  } catch (err) {
+  } catch {
     return res.status(401).json({ message: 'Token verifisering feilet' })
   }
 }
