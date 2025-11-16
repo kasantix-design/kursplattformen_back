@@ -1,14 +1,8 @@
 import nodemailer from "nodemailer";
 import { env } from "../config/env";
 
-interface EpostData {
-  navn: string;
-  epost: string;
-  melding: string;
-}
-
-export const sendEpost = async ({ navn, epost, melding }: EpostData) => {
-  const transporter = nodemailer.createTransport({
+export const sendEpost = async (til: string, emne: string, melding: string) => {
+  const transport = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: env.GMAIL_USER,
@@ -16,12 +10,10 @@ export const sendEpost = async ({ navn, epost, melding }: EpostData) => {
     },
   });
 
-  const mailOptions = {
-    from: `"${navn}" <${epost}>`,
-    to: env.GMAIL_USER,
-    subject: "Ny henvendelse fra medlem",
+  await transport.sendMail({
+    from: `"Kursplattformen" <${env.GMAIL_USER}>`,
+    to: til,
+    subject: emne,
     text: melding,
-  };
-
-  await transporter.sendMail(mailOptions);
+  });
 };
