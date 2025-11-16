@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import  sendEpost  from "../services/epostService";
+import { sendEpost } from "../services/epostService"; 
+
 
 // Kun admin skal kunne sende e-post
 export const hentMinSide = async (req: Request, res: Response) => {
