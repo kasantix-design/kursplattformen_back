@@ -1,15 +1,10 @@
-import { Router } from "express"
-import {
-  hentAlleKurs,
-  hentKurs,
-  opprettKurs,
-} from "../controllers/kursController"
-import { beskytte, admin } from "../middleware/auth"
+import express from "express";
+import { hentAlleKurs, hentKurs, opprettKurs } from "../controllers/kursController";
 
-const router = Router()
+const router = express.Router();
 
-router.get("/", beskytte, hentAlleKurs)
-router.get("/:id", beskytte, hentKurs)
-router.post("/", beskytte, admin, opprettKurs)
+router.get("/", hentAlleKurs);
+router.get("/:id", hentKurs);
+router.post("/", opprettKurs);
 
-export default router
+export default router;
