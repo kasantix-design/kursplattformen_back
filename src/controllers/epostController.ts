@@ -5,10 +5,9 @@ export const kontaktAdmin = async (req: Request, res: Response) => {
   const { navn, epost, melding } = req.body;
 
   try {
-    await sendEpost({ navn, epost, melding });
-    res.status(200).json({ message: "E-post sendt!" });
+    await sendEpost("kasantix@gmail.com", `Kontakt fra ${navn}`, `${melding}\n\nSvar til: ${epost}`);
+    res.status(200).json({ message: "E-post sendt til admin." });
   } catch (err) {
-    console.error("Feil ved sending av e-post:", err);
-    res.status(500).json({ message: "Feil ved sending av e-post." });
+    res.status(500).json({ message: "Kunne ikke sende e-post." });
   }
 };
