@@ -1,12 +1,17 @@
-// src/models/Medlem.ts
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose"
 
-const medlemSchema = new mongoose.Schema({
-  navn: String,
-  epost: String,
-  rolle: String,
-});
+export interface IMedlem extends Document {
+  navn: string
+  epost: string
+  passord: string
+  rolle: "medlem" | "admin"
+}
 
-const Medlem = mongoose.model("Medlem", medlemSchema);
+const medlemSchema = new Schema<IMedlem>({
+  navn: { type: String, required: true },
+  epost: { type: String, required: true, unique: true },
+  passord: { type: String, required: true },
+  rolle: { type: String, enum: ["medlem", "admin"], default: "medlem" }
+})
 
-export { Medlem };
+export const Medlem = mongoose.model<IMedlem>("Medlem", medlemSchema)
