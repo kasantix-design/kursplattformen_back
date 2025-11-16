@@ -1,8 +1,8 @@
-import { Router } from "express"
-import { kontaktAdmin } from "../controllers/epostController"
+import express from "express";
+import { kontaktAdmin } from "../controllers/epostController";
 
-const router = Router()
+const router = express.Router();
 
-router.post("/kontakt", kontaktAdmin)
+router.post("/", kontaktAdmin);
 
-export default router
+export default router;
