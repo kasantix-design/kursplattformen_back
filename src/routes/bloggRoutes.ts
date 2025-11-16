@@ -1,10 +1,9 @@
-import { Router } from "express"
-import { hentAlleBlogg, opprettBlogg } from "../controllers/bloggController"
-import { beskytte, admin } from "../middleware/auth"
+import express from "express";
+import { hentAlleBlogg, opprettBlogg } from "../controllers/bloggController";
 
-const router = Router()
+const router = express.Router();
 
-router.get("/", hentAlleBlogg)
-router.post("/", beskytte, admin, opprettBlogg)
+router.get("/", hentAlleBlogg);
+router.post("/", opprettBlogg);
 
-export default router
+export default router;
