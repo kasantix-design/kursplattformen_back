@@ -1,10 +1,10 @@
-import { ObjectId } from 'mongoose'
+import 'express'
 
 declare module 'express' {
   interface UserPayload {
-    id: string | ObjectId
+    id: string
     email?: string
-    rolle: 'medlem' | 'admin'
+    rolle?: 'medlem' | 'admin'
   }
 
   interface Request {
