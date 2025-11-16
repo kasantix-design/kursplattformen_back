@@ -1,9 +1,8 @@
-import { Router } from "express"
-import { hentProfil } from "../controllers/medlemController"
-import { beskytte } from "../middleware/auth"
+import express from "express";
+import { hentProfil } from "../controllers/medlemController";
 
-const router = Router()
+const router = express.Router();
 
-router.get("/profil", beskytte, hentProfil)
+router.get("/profil", hentProfil);
 
-export default router
+export default router;
