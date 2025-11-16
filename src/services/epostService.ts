@@ -1,19 +1,27 @@
-import nodemailer from "nodemailer"
-import { env } from "../config/env"
+import nodemailer from "nodemailer";
+import { env } from "../config/env";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: env.GMAIL_USER,
-    pass: env.GMAIL_PASS,
-  },
-})
+interface EpostData {
+  navn: string;
+  epost: string;
+  melding: string;
+}
 
-export async function sendEpost({ navn, epost, melding }: { navn: string, epost: string, melding: string }) {
-  return transporter.sendMail({
+export const sendEpost = async ({ navn, epost, melding }: EpostData) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: env.GMAIL_USER,
+      pass: env.GMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
     from: `"${navn}" <${epost}>`,
     to: env.GMAIL_USER,
-    subject: `Kontakt fra ${navn}`,
+    subject: "Ny henvendelse fra medlem",
     text: melding,
-  })
-}
+  };
+
+  await transporter.sendMail(mailOptions);
+};
