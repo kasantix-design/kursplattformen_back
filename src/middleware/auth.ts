@@ -5,11 +5,14 @@ import { env } from '../config/env'
 interface JwtPayload {
   id: string
   email?: string
-  rolle?: string
+  rolle?: string // kommer fra token
 }
 
-// Sikker sjekk på rolle-verdien før vi bruker den
-const erGyldigRolle = (rolle: any): rolle is 'admin' | 'medlem' => {
+// Rolle-type du godtar
+type TillattRolle = 'admin' | 'medlem'
+
+// Type guard for å validere rollen
+const erGyldigRolle = (rolle: any): rolle is TillattRolle => {
   return rolle === 'admin' || rolle === 'medlem'
 }
 
@@ -25,16 +28,14 @@ export const autentiser = (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload
 
-    // Type-narrowing her
-    if (!decoded.id || !erGyldigRolle(decoded.rolle)) {
-      return res.status(403).json({ message: 'Ugyldig token-rolle eller ID' })
+    const { id, email, rolle } = decoded
+
+    if (!id || !erGyldigRolle(rolle)) {
+      return res.status(403).json({ message: 'Ugyldig token-data' })
     }
 
-    req.user = {
-      id: decoded.id,
-      email: decoded.email,
-      rolle: decoded.rolle // nå godkjent som 'admin' | 'medlem'
-    }
+    // Nå er rolle godkjent som 'admin' | 'medlem'
+    req.user = { id, email, rolle }
 
     next()
   } catch {
