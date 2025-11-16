@@ -1,12 +1,12 @@
-import mongoose from "mongoose"
-import { env } from "./env"
+import mongoose from 'mongoose'
+import { env } from './env'
 
-export async function connectDB() {
+export const connectDB = async (): Promise<void> => {
   try {
-    await mongoose.connect(env.MONGODB_URI)
-    console.log("✅ MongoDB koblet til")
-  } catch (err) {
-    console.error("❌ Feil ved MongoDB-tilkobling:", err)
-    process.exit(1)
+    const conn = await mongoose.connect(env.MONGODB_URI)
+    console.log(`✅ MongoDB tilkoblet: ${conn.connection.host}`)
+  } catch (error) {
+    console.error('❌ Feil ved tilkobling til MongoDB:', error)
+    throw error
   }
 }
