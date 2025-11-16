@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import Medlem from "../models/Medlem";
+import { Medlem } from "../models/Medlem";
+
+
 
 // Hent info om innlogget medlem
 export const hentMinSide = async (req: Request, res: Response) => {
