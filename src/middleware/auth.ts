@@ -1,34 +1,49 @@
 import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
-import { env } from "../config/env"
+import { ObjectId } from "mongoose"
 import { Bruker } from "../models/Bruker"
 
-interface JwtPayload {
+interface TokenPayload {
   id: string
   rolle: string
 }
 
-export const beskytte = async (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization
+export const autentiser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(" ")[1]
+  if (!token) {
+    return res.status(401).json({ msg: "Ingen token, tilgang nektet" })
+  }
 
-  if (!authHeader?.startsWith("Bearer "))
-    return res.status(401).json({ msg: "Ingen token" })
-
-  const token = authHeader.split(" ")[1]
   try {
-    const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload
-    const bruker = await Bruker.findById(decoded.id).select("-passord")
-    if (!bruker) return res.status(401).json({ msg: "Ugyldig bruker" })
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload
+    const bruker = await Bruker.findById(decoded.id)
 
-    req.user = { id: bruker._id.toString(), rolle: bruker.rolle }
+    if (!bruker) {
+      return res.status(401).json({ msg: "Bruker ikke funnet" })
+    }
+
+    req.user = {
+      id: bruker._id.toString(),
+      rolle: bruker.rolle,
+    }
+
     next()
   } catch (err) {
     res.status(401).json({ msg: "Ugyldig token" })
   }
 }
 
-export const admin = (req: Request, res: Response, next: NextFunction) => {
-  if (req.user?.rolle !== "admin")
-    return res.status(403).json({ msg: "Kun admin har tilgang" })
-  next()
+export const sjekkRolle = (rolle: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || req.user.rolle !== rolle) {
+      return res
+        .status(403)
+        .json({ msg: "Du har ikke tilgang til denne ressursen" })
+    }
+    next()
+  }
 }
