@@ -1,49 +1,40 @@
 import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
-import { ObjectId } from "mongoose"
-import { Bruker } from "../models/Medlem"
+import { Medlem } from "../models/Medlem"
 
-interface TokenPayload {
-  id: string
-  rolle: string
-}
+const JWT_SECRET = process.env.JWT_SECRET!
 
-export const autentiser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const token = req.headers.authorization?.split(" ")[1]
-  if (!token) {
-    return res.status(401).json({ msg: "Ingen token, tilgang nektet" })
+export const beskyttRoute = async (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ msg: "Ingen token funnet" })
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload
-    const bruker = await Medlem.findById(decoded.id)
+  const token = authHeader.split(" ")[1]
 
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string }
+
+    const medlem = await Medlem.findById(decoded.id)
     if (!medlem) {
-      return res.status(401).json({ msg: "Medlem ikke funnet" })
+      return res.status(401).json({ msg: "Ugyldig token" })
     }
 
     req.user = {
       id: medlem._id.toString(),
-      rolle: medlem.rolle,
+      rolle: medlem.rolle
     }
 
     next()
   } catch (err) {
-    res.status(401).json({ msg: "Ugyldig token" })
+    res.status(401).json({ msg: "Token-verifisering feilet" })
   }
 }
 
-export const sjekkRolle = (rolle: string) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || req.user.rolle !== rolle) {
-      return res
-        .status(403)
-        .json({ msg: "Du har ikke tilgang til denne ressursen" })
-    }
-    next()
+export const kunAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user || req.user.rolle !== "admin") {
+    return res.status(403).json({ msg: "Krever administrator-tilgang" })
   }
+  next()
 }
