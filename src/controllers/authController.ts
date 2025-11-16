@@ -1,56 +1,61 @@
-import { Request, Response } from "express";
-import { Bruker } from "../models/Bruker";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { Request, Response } from "express"
+import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+import { Medlem } from "../models/Medlem"
+
+const JWT_SECRET = process.env.JWT_SECRET!
 
 export const register = async (req: Request, res: Response) => {
-  const { navn, epost, passord, rolle } = req.body;
+  const { navn, epost, passord } = req.body
 
   try {
-    const eksisterer = await Bruker.findOne({ epost });
-    if (eksisterer) {
-      return res.status(400).json({ message: "E-post allerede i bruk" });
+    const eksisterende = await Medlem.findOne({ epost })
+    if (eksisterende) {
+      return res.status(400).json({ msg: "E-post er allerede registrert" })
     }
 
-    const hashed = await bcrypt.hash(passord, 10);
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassord = await bcrypt.hash(passord, salt)
 
-    const nyBruker = new Bruker({
+    const nyttMedlem = new Medlem({
       navn,
       epost,
-      passord: hashed,
-      rolle: rolle || "medlem",
-    });
+      passord: hashedPassord,
+      rolle: "medlem"
+    })
 
-    await nyBruker.save();
+    await nyttMedlem.save()
 
-    res.status(201).json({ message: "Bruker registrert" });
+    const token = jwt.sign({ id: nyttMedlem._id, rolle: nyttMedlem.rolle }, JWT_SECRET, {
+      expiresIn: "7d"
+    })
+
+    res.status(201).json({ token })
   } catch (err) {
-    res.status(500).json({ message: "Feil ved registrering" });
+    res.status(500).json({ msg: "Noe gikk galt ved registrering" })
   }
-};
+}
 
 export const login = async (req: Request, res: Response) => {
-  const { epost, passord } = req.body;
+  const { epost, passord } = req.body
 
   try {
-    const bruker = await Bruker.findOne({ epost });
-    if (!bruker) {
-      return res.status(401).json({ message: "Ugyldig e-post eller passord" });
+    const medlem = await Medlem.findOne({ epost })
+    if (!medlem) {
+      return res.status(400).json({ msg: "Ugyldig e-post eller passord" })
     }
 
-    const match = await bcrypt.compare(passord, bruker.passord);
-    if (!match) {
-      return res.status(401).json({ message: "Ugyldig e-post eller passord" });
+    const isMatch = await bcrypt.compare(passord, medlem.passord)
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Ugyldig e-post eller passord" })
     }
 
-    const token = jwt.sign(
-      { id: bruker._id.toString(), rolle: bruker.rolle },
-      process.env.JWT_SECRET!,
-      { expiresIn: "2h" }
-    );
+    const token = jwt.sign({ id: medlem._id, rolle: medlem.rolle }, JWT_SECRET, {
+      expiresIn: "7d"
+    })
 
-    res.status(200).json({ token });
+    res.status(200).json({ token })
   } catch (err) {
-    res.status(500).json({ message: "Feil ved innlogging" });
+    res.status(500).json({ msg: "Innlogging feilet" })
   }
-};
+}
