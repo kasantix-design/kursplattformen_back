@@ -1,10 +1,9 @@
-import { Router } from "express"
-import { hentVideoer, lagreVideo } from "../controllers/videoController"
-import { beskytte, admin } from "../middleware/auth"
+import express from "express";
+import { hentVideoer, lagreVideo } from "../controllers/videoController";
 
-const router = Router()
+const router = express.Router();
 
-router.get("/:kursId", beskytte, hentVideoer)
-router.post("/", beskytte, admin, lagreVideo)
+router.get("/", hentVideoer);
+router.post("/", lagreVideo);
 
-export default router
+export default router;
