@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
 import { ObjectId } from "mongoose"
-import { Bruker } from "../models/Bruker"
+import { Bruker } from "../models/Medlem"
 
 interface TokenPayload {
   id: string
@@ -20,15 +20,15 @@ export const autentiser = async (
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload
-    const bruker = await Bruker.findById(decoded.id)
+    const bruker = await Medlem.findById(decoded.id)
 
-    if (!bruker) {
-      return res.status(401).json({ msg: "Bruker ikke funnet" })
+    if (!medlem) {
+      return res.status(401).json({ msg: "Medlem ikke funnet" })
     }
 
     req.user = {
-      id: bruker._id.toString(),
-      rolle: bruker.rolle,
+      id: medlem._id.toString(),
+      rolle: medlem.rolle,
     }
 
     next()
