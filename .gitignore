@@ -1,0 +1,14 @@
+# Ignorer miljøvariabler
+.env
+
+# Ignorer bygde filer
+dist/
+
+# Ignorer loggfiler
+*.log
+
+# Ignorer node_modules (kan installeres på nytt)
+node_modules/
+
+# macOS metadata
+.DS_Store
