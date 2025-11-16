@@ -1,12 +1,7 @@
 import { Request, Response } from "express";
-import Kurs from "../models/Kurs";
+import { Kurs } from "../models/Kurs";
 
-// Hent alle kurs (offentlig)
-export const hentMinSide = async (req: Request, res: Response) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Ikke autentisert" });
-  }
-export const hentAlleKurs = async (req: Request, res: Response) => {
+export const hentAlleKurs = async (_req: Request, res: Response) => {
   try {
     const kurs = await Kurs.find();
     res.status(200).json(kurs);
@@ -15,43 +10,31 @@ export const hentAlleKurs = async (req: Request, res: Response) => {
   }
 };
 
-// Opprett nytt kurs (kun admin)
-export const opprettKurs = async (req: Request, res: Response) => {
-  if (!req.user || req.user.rolle !== "admin") {
-    return res.status(403).json({ message: "Kun admin kan opprette kurs" });
+export const hentKurs = async (req: Request, res: Response) => {
+  try {
+    const kurs = await Kurs.findById(req.params.id);
+    if (!kurs) return res.status(404).json({ message: "Kurs ikke funnet" });
+    res.status(200).json(kurs);
+  } catch (err) {
+    res.status(500).json({ message: "Feil ved henting av kurset" });
   }
+};
 
-  const { tittel, beskrivelse, dato, pris } = req.body;
+export const opprettKurs = async (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: "Ikke autentisert" });
+
+  const { tittel, beskrivelse } = req.body;
 
   try {
-    const nyttKurs = new Kurs({ tittel, beskrivelse, dato, pris });
+    const nyttKurs = new Kurs({
+      tittel,
+      beskrivelse,
+      opprettetAv: req.user.id,
+    });
+
     await nyttKurs.save();
     res.status(201).json(nyttKurs);
   } catch (err) {
-    res.status(500).json({ message: "Kunne ikke opprette kurs" });
+    res.status(500).json({ message: "Feil ved opprettelse av kurs" });
   }
 };
-
-// Påmeld medlem til kurs
-export const meldPaKurs = async (req: Request, res: Response) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Ikke autorisert" });
-  }
-
-  const kursId = req.params.id;
-
-  try {
-    const kurs = await Kurs.findById(kursId);
-    if (!kurs) return res.status(404).json({ message: "Kurs ikke funnet" });
-
-    if (!kurs.deltakere.includes(req.user.id)) {
-      kurs.deltakere.push(req.user.id);
-      await kurs.save();
-    }
-
-    res.status(200).json({ message: "Påmeldt til kurs", kurs });
-  } catch (err) {
-    res.status(500).json({ message: "Feil ved påmelding" });
-  }
-};
-}
