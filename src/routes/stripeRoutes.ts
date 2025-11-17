@@ -1,12 +1,14 @@
 import express from "express"
-import { opprettStripeCheckout } from "../services/stripeService"
+import opprettStripeCheckout from "../services/stripeService"
 
 const router = express.Router()
 
 router.post("/stripe", async (req, res) => {
   try {
     const { kursId } = req.body
-    if (!kursId) return res.status(400).json({ error: "Mangler kursId" })
+    if (!kursId) {
+      return res.status(400).json({ error: "Mangler kursId" })
+    }
 
     const session = await opprettStripeCheckout(kursId)
     res.json({ url: session.url })
