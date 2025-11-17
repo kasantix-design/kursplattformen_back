@@ -1,13 +1,17 @@
-import 'express'
+import { ObjectId } from 'mongoose'
 
-declare module 'express' {
-  interface UserPayload {
-    id: string
-    email?: string
-    rolle?: 'medlem' | 'admin'
-  }
+declare global {
+  namespace Express {
+    interface UserPayload {
+      id: string | ObjectId
+      email?: string
+      rolle: 'medlem' | 'admin'
+    }
 
-  interface Request {
-    user?: UserPayload
+    interface Request {
+      user?: UserPayload
+    }
   }
 }
+
+export {}
