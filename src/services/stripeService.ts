@@ -1,36 +1,24 @@
-import express from 'express'
-import cors from 'cors'
-import morgan from 'morgan'
+import Stripe from "stripe"
 
-// Middleware
-import { errorHandler } from './middleware/errorHandler'
+const stripe = new Stripe(process.env.STRIPE_KEY!, {
+  apiVersion: "2022-11-15",
+})
 
-// Ruter
-import kursRoutes from './routes/kursRoutes'
-import medlemRoutes from './routes/medlemRoutes'
-import bloggRoutes from './routes/bloggRoutes'
-import epostRoutes from './routes/epostRoutes'
-import videoRoutes from './routes/videoRoutes'
-import authRoutes from './routes/authRoutes'
-import profilRoutes from './routes/profilRoutes' // ✅ eksistert og brukt for å teste token
-
-const app = express()
-
-// Middleware
-app.use(cors())
-app.use(morgan('dev'))
-app.use(express.json())
-
-// Rute-mounts
-app.use('/api/kurs', kursRoutes)
-app.use('/api/medlem', medlemRoutes)
-app.use('/api/blogg', bloggRoutes)
-app.use('/api/epost', epostRoutes)
-app.use('/api/video', videoRoutes)
-app.use('/api/auth', authRoutes)
-app.use('/api/profil', profilRoutes)
-
-// Felles feilhåndtering
-app.use(errorHandler)
-
-export default app
+export default async function opprettStripeCheckout(kursId: string) {
+  return await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "nok",
+          product_data: { name: `Kurs ID: ${kursId}` },
+          unit_amount: 49900, // 499 NOK
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${process.env.FRONTEND_URL}/betaling?status=success`,
+    cancel_url: `${process.env.FRONTEND_URL}/betaling?status=cancel`,
+  })
+}
