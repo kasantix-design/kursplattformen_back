@@ -12,7 +12,7 @@ export default async function opprettStripeCheckout(kursId: string) {
         price_data: {
           currency: "nok",
           product_data: { name: `Kurs ID: ${kursId}` },
-          unit_amount: 49900, // 499 NOK
+          unit_amount: 49900,
         },
         quantity: 1,
       },
