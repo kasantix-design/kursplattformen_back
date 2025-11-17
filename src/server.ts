@@ -1,16 +1,19 @@
+import app from './app'
 import { connectDB } from './config/db'
 import { env } from './config/env'
-import app from './app'
 
-const PORT = env.PORT || 4000
+const startServer = async () => {
+  try {
+    await connectDB()
 
-connectDB()
-  .then(() => {
+    const PORT = env.PORT || 4000
     app.listen(PORT, () => {
-      console.log(`🚀 Server kjører på http://localhost:${PORT}`)
+      console.log(`🚀 Server kjører på port ${PORT}`)
     })
-  })
-  .catch((err) => {
-    console.error('❌ Klarte ikke å koble til databasen:', err)
+  } catch (error) {
+    console.error('❌ Klarte ikke å starte server:', error)
     process.exit(1)
-  })
+  }
+}
+
+startServer()
