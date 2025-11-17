@@ -1,24 +1,36 @@
-import Stripe from "stripe"
-import { env } from "../config/env"
+import express from 'express'
+import cors from 'cors'
+import morgan from 'morgan'
 
-const stripe = new Stripe(env.STRIPE_KEY, { apiVersion: "2022-11-15" })
+// Middleware
+import { errorHandler } from './middleware/errorHandler'
 
-export async function opprettBetalingSession(kursId: string, amount: number) {
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    line_items: [{
-      price_data: {
-        currency: "nok",
-        unit_amount: amount,
-        product_data: {
-          name: `Kurs: ${kursId}`
-        },
-      },
-      quantity: 1,
-    }],
-    mode: "payment",
-    success_url: `${env.FRONTEND_URL}/mine-kurs`,
-    cancel_url: `${env.FRONTEND_URL}/kurs`,
-  })
-  return session.url
-}
+// Ruter
+import kursRoutes from './routes/kursRoutes'
+import medlemRoutes from './routes/medlemRoutes'
+import bloggRoutes from './routes/bloggRoutes'
+import epostRoutes from './routes/epostRoutes'
+import videoRoutes from './routes/videoRoutes'
+import authRoutes from './routes/authRoutes'
+import profilRoutes from './routes/profilRoutes' // ✅ eksistert og brukt for å teste token
+
+const app = express()
+
+// Middleware
+app.use(cors())
+app.use(morgan('dev'))
+app.use(express.json())
+
+// Rute-mounts
+app.use('/api/kurs', kursRoutes)
+app.use('/api/medlem', medlemRoutes)
+app.use('/api/blogg', bloggRoutes)
+app.use('/api/epost', epostRoutes)
+app.use('/api/video', videoRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/profil', profilRoutes)
+
+// Felles feilhåndtering
+app.use(errorHandler)
+
+export default app
